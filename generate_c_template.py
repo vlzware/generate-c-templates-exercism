@@ -58,7 +58,7 @@ print >> f, '\t@valgrind $(VFLAGS) ./tests.out'
 print >> f, '\t@echo "Memory check passed"'
 print >> f
 print >> f, 'clean:'
-print >> f, '\tm -rf *.o *.out *.out.dSYM'
+print >> f, '\trm -rf *.o *.out *.out.dSYM'
 print >> f
 print >> f, ('tests.out: test/'
              + 'test_' + exercise_ + '.c'
@@ -154,8 +154,8 @@ print >> f, '   UnityBegin("test/test_' + exercise_ + '.c");'
 print >> f
 
 for item in data['cases']:
-    print >> f, '   RUN_TEST(test_' + desc + ');'
     desc = item['description'].replace(' ', '_')  # switch
+    print >> f, '   RUN_TEST(test_' + desc + ');'
 
 print >> f
 print >> f, '   UnityEnd();'
