@@ -13,6 +13,7 @@ if len(sys.argv) == 1:
     sys.exit('Usage: %s exercise' % sys.argv[0])
 
 exercise = sys.argv[1]
+exercise_ = exercise.replace('-', '_')
 
 # fetch readme
 try:
@@ -35,6 +36,37 @@ except OSError as e:
 f = open(exercise + '/README.md', 'w')
 print >> f, readme.read()
 
+# create makefile
+f = open(exercise + '/makefile', 'w')
+print >> f, 'CFLAGS  = -std=c99'
+print >> f, 'CFLAGS += -g'
+print >> f, 'CFLAGS += -Wall'
+print >> f, 'CFLAGS += -Wextra'
+print >> f, 'CFLAGS += -pedantic'
+print >> f, 'CFLAGS += -Werror'
+print >> f
+print >> f, 'VFLAGS  = --quiet'
+print >> f, 'VFLAGS += --tool=memcheck'
+print >> f, 'VFLAGS += --leak-check=full'
+print >> f, 'VFLAGS += --error-exitcode=1'
+print >> f
+print >> f, 'test: tests.out'
+print >> f, '\t@./tests.out'
+print >> f
+print >> f, 'memcheck: tests.out'
+print >> f, '\t@valgrind $(VFLAGS) ./tests.out'
+print >> f, '\t@echo "Memory check passed"'
+print >> f
+print >> f, 'clean:'
+print >> f, '\tm -rf *.o *.out *.out.dSYM'
+print >> f
+print >> f, ('tests.out: test/'
+             + 'test_' + exercise_ + '.c'
+             ' src/' + exercise_ + '.c src/' + exercise_ + '.h')
+print >> f, '\t@echo Compiling $@'
+print >> f, ('\t@cc $(CFLAGS) src/' + exercise_ + '.c test/vendor/unity.c'
+             ' test/test_' + exercise_ + '.c -o tests.out')
+
 # create 'test' subdir
 try:
     os.makedirs(exercise + "/test")
@@ -56,8 +88,6 @@ except urllib2.URLError, e:
     sys.exit('json URL error')
 
 data = json.load(canonical)
-
-exercise_ = exercise.replace('-', '_')
 
 # create 'src' subdir
 try:
