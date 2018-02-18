@@ -133,7 +133,7 @@ else:
     top = data['cases']
 for item in top:
     exnum += 1
-    desc = item['description'].replace(' ', '_')  # switch
+    desc = item['description'].replace(' ', '_').replace('-', '_')
     print >> f, 'void test_' + desc + '(void)'
     print >> f, '{'
     if exnum == 2:
@@ -158,7 +158,7 @@ print >> f, '   UnityBegin("test/test_' + exercise_ + '.c");'
 print >> f
 
 for item in data['cases']:
-    desc = item['description'].replace(' ', '_')  # switch
+    desc = item['description'].replace(' ', '_').replace('-', '_')
     print >> f, '   RUN_TEST(test_' + desc + ');'
 
 print >> f
