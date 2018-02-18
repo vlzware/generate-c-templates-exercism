@@ -124,7 +124,6 @@ print >> f, 'void tearDown(void)'
 print >> f, '{'
 print >> f, '}'
 print >> f
-print >> f, '//Tests start here'
 
 exnum = 0
 if 'cases' in data['cases'][0]:
