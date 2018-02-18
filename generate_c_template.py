@@ -127,7 +127,11 @@ print >> f
 print >> f, '//Tests start here'
 
 exnum = 0
-for item in data['cases']:
+if 'cases' in data['cases'][0]:
+    top = data['cases'][0]['cases']
+else:
+    top = data['cases']
+for item in top:
     exnum += 1
     desc = item['description'].replace(' ', '_')  # switch
     print >> f, 'void test_' + desc + '(void)'
