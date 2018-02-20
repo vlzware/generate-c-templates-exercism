@@ -136,16 +136,16 @@ for item in top:
     print >> f, 'void test_' + desc + '(void)'
     print >> f, '{'
     if exnum == 2:
-        print >> f, ('   TEST_IGNORE();               '
+        print >> f, ('        TEST_IGNORE();               '
                      '// delete this line to run test')
     elif exnum > 2:
-        print >> f, '   TEST_IGNORE();'
-    print >> f, '/*'
+        print >> f, '        TEST_IGNORE();'
+    print >> f, '        /*'
     print >> f, '----Input----'
     print >> f, json.dumps(item['input'], indent=3)
     print >> f, '---Expected---'
     print >> f, json.dumps(item['expected'], indent=3)
-    print >> f, '*/'
+    print >> f, '        */'
     print >> f
     print >> f
     print >> f, '}'
@@ -153,14 +153,14 @@ for item in top:
 
 print >> f, 'int main(void)'
 print >> f, '{'
-print >> f, '   UnityBegin("test/test_' + exercise_ + '.c");'
+print >> f, '        UnityBegin("test/test_' + exercise_ + '.c");'
 print >> f
 
 for item in top:
     desc = item['description'].replace(' ', '_').replace('-', '_')
-    print >> f, '   RUN_TEST(test_' + desc + ');'
+    print >> f, '        RUN_TEST(test_' + desc + ');'
 
 print >> f
-print >> f, '   UnityEnd();'
-print >> f, '   return 0;'
+print >> f, '        UnityEnd();'
+print >> f, '        return 0;'
 print >> f, '}'
