@@ -156,7 +156,7 @@ print >> f, '{'
 print >> f, '   UnityBegin("test/test_' + exercise_ + '.c");'
 print >> f
 
-for item in data['cases']:
+for item in top:
     desc = item['description'].replace(' ', '_').replace('-', '_')
     print >> f, '   RUN_TEST(test_' + desc + ');'
 
