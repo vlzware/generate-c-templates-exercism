@@ -5,6 +5,7 @@ import sys
 import json
 import os
 import errno
+import re
 import urllib2
 from distutils.dir_util import copy_tree
 
@@ -132,7 +133,7 @@ else:
     top = data['cases']
 for item in top:
     exnum += 1
-    desc = item['description'].replace(' ', '_').replace('-', '_')
+    desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
     print >> f, 'void test_' + desc + '(void)'
     print >> f, '{'
     if exnum == 2:
@@ -157,7 +158,7 @@ print >> f, '        UnityBegin("test/test_' + exercise_ + '.c");'
 print >> f
 
 for item in top:
-    desc = item['description'].replace(' ', '_').replace('-', '_')
+    desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
     print >> f, '        RUN_TEST(test_' + desc + ');'
 
 print >> f
