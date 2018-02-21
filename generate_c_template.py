@@ -134,7 +134,7 @@ else:
 for item in top:
     exnum += 1
     desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
-    print >> f, 'void test_' + desc + '(void)'
+    print >> f, 'void test_' + desc.lower() + '(void)'
     print >> f, '{'
     if exnum == 2:
         print >> f, ('        TEST_IGNORE();               '
@@ -159,7 +159,7 @@ print >> f
 
 for item in top:
     desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
-    print >> f, '        RUN_TEST(test_' + desc + ');'
+    print >> f, '        RUN_TEST(test_' + desc.lower() + ');'
 
 print >> f
 print >> f, '        UnityEnd();'
