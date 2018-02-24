@@ -31,7 +31,7 @@ def print_functions(top, exnum):
         print >> F
         print >> F, '}'
         print >> F
-    return
+    return exnum
 
 def print_callers(m_item):
     """ helper for the function callers """
@@ -159,8 +159,7 @@ print >> F
 EXNUM = 0
 if 'cases' in DATA['cases'][0]:
     for obj in DATA['cases']:
-        EXNUM += 1
-        print_functions(obj['cases'], EXNUM)
+        EXNUM = print_functions(obj['cases'], EXNUM)
 else:
     print_functions(DATA['cases'], EXNUM)
 
