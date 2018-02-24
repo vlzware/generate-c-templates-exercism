@@ -9,159 +9,175 @@ import re
 import urllib2
 from distutils.dir_util import copy_tree
 
+def print_functions(top, exnum):
+    """ helper for the function names """
+    for item in top:
+        exnum += 1
+        desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
+        print >> F, 'void test_' + desc.lower() + '(void)'
+        print >> F, '{'
+        if exnum == 2:
+            print >> F, ('        TEST_IGNORE();               '
+                         '// delete this line to run test')
+        elif exnum > 2:
+            print >> F, '        TEST_IGNORE();'
+        print >> F, '        /*'
+        print >> F, '----Input----'
+        print >> F, json.dumps(item['input'], indent=3)
+        print >> F, '---Expected---'
+        print >> F, json.dumps(item['expected'], indent=3)
+        print >> F, '        */'
+        print >> F
+        print >> F
+        print >> F, '}'
+        print >> F
+    return
+
+def print_callers(m_item):
+    """ helper for the function callers """
+    desc = re.sub('[^0-9a-zA-Z]+', '_', m_item['description'])
+    print >> F, '        RUN_TEST(test_' + desc.lower() + ');'
+    return
+
 # check input
 if len(sys.argv) == 1:
     sys.exit('Usage: %s exercise' % sys.argv[0])
 
-exercise = sys.argv[1]
-exercise_ = exercise.replace('-', '_')
+EXERCISE = sys.argv[1]
+EXERCISE_ = EXERCISE.replace('-', '_')
 
-# fetch readme
+# fetch README
 try:
-    readme = urllib2.urlopen('https://raw.githubusercontent.com/exercism/'
+    README = urllib2.urlopen('https://raw.githubusercontent.com/exercism/'
                              'problem-specifications/master/exercises/'
-                             + exercise +
+                             + EXERCISE +
                              '/description.md')
-except urllib2.URLError, e:
-    print e
-    sys.exit('readme URL error')
+except urllib2.URLError, url_error:
+    print url_error
+    sys.exit('README URL error')
 
 # create main dir
 try:
-    os.makedirs(exercise)
-except OSError as e:
-    if e.errno != errno.EEXIST:
+    os.makedirs(EXERCISE)
+except OSError as dir_error:
+    if dir_error.errno != errno.EEXIST:
         raise
 
-# save readme
-f = open(exercise + '/README.md', 'w')
-print >> f, readme.read()
+# save README
+F = open(EXERCISE + '/README.md', 'w')
+print >> F, README.read()
 
 # create makefile
-f = open(exercise + '/makefile', 'w')
-print >> f, 'CFLAGS  = -std=c99'
-print >> f, 'CFLAGS += -g'
-print >> f, 'CFLAGS += -Wall'
-print >> f, 'CFLAGS += -Wextra'
-print >> f, 'CFLAGS += -pedantic'
-print >> f, 'CFLAGS += -Werror'
-print >> f
-print >> f, 'VFLAGS  = --quiet'
-print >> f, 'VFLAGS += --tool=memcheck'
-print >> f, 'VFLAGS += --leak-check=full'
-print >> f, 'VFLAGS += --error-exitcode=1'
-print >> f
-print >> f, 'test: tests.out'
-print >> f, '\t@./tests.out'
-print >> f
-print >> f, 'memcheck: tests.out'
-print >> f, '\t@valgrind $(VFLAGS) ./tests.out'
-print >> f, '\t@echo "Memory check passed"'
-print >> f
-print >> f, 'clean:'
-print >> f, '\trm -rf *.o *.out *.out.dSYM'
-print >> f
-print >> f, ('tests.out: test/'
-             + 'test_' + exercise_ + '.c'
-             ' src/' + exercise_ + '.c src/' + exercise_ + '.h')
-print >> f, '\t@echo Compiling $@'
-print >> f, ('\t@cc $(CFLAGS) src/' + exercise_ + '.c test/vendor/unity.c'
-             ' test/test_' + exercise_ + '.c -o tests.out')
+F = open(EXERCISE + '/makefile', 'w')
+print >> F, 'CFLAGS  = -std=c99'
+print >> F, 'CFLAGS += -g'
+print >> F, 'CFLAGS += -Wall'
+print >> F, 'CFLAGS += -Wextra'
+print >> F, 'CFLAGS += -pedantic'
+print >> F, 'CFLAGS += -Werror'
+print >> F
+print >> F, 'VFLAGS  = --quiet'
+print >> F, 'VFLAGS += --tool=memcheck'
+print >> F, 'VFLAGS += --leak-check=full'
+print >> F, 'VFLAGS += --error-exitcode=1'
+print >> F
+print >> F, 'test: tests.out'
+print >> F, '\t@./tests.out'
+print >> F
+print >> F, 'memcheck: tests.out'
+print >> F, '\t@valgrind $(VFLAGS) ./tests.out'
+print >> F, '\t@echo "Memory check passed"'
+print >> F
+print >> F, 'clean:'
+print >> F, '\trm -rf *.o *.out *.out.dSYM'
+print >> F
+print >> F, ('tests.out: test/'
+             + 'test_' + EXERCISE_ + '.c'
+             ' src/' + EXERCISE_ + '.c src/' + EXERCISE_ + '.h')
+print >> F, '\t@echo Compiling $@'
+print >> F, ('\t@cc $(CFLAGS) src/' + EXERCISE_ + '.c test/vendor/unity.c'
+             ' test/test_' + EXERCISE_ + '.c -o tests.out')
 
 # create 'test' subdir
 try:
-    os.makedirs(exercise + "/test")
-except OSError as e:
-    if e.errno != errno.EEXIST:
+    os.makedirs(EXERCISE + "/test")
+except OSError as dir_error:
+    if dir_error.errno != errno.EEXIST:
         raise
 
 # copy 'vemdor'
-copy_tree('vendor', exercise + '/test/vendor')
+copy_tree('vendor', EXERCISE + '/test/vendor')
 
 # fetch json
 try:
-    canonical = urllib2.urlopen('https://raw.githubusercontent.com/exercism/'
+    CANONICAL = urllib2.urlopen('https://raw.githubusercontent.com/exercism/'
                                 'problem-specifications/master/exercises/'
-                                + exercise +
+                                + EXERCISE +
                                 '/canonical-data.json')
-except urllib2.URLError, e:
-    print e
+except urllib2.URLError, url_error:
+    print url_error
     sys.exit('json URL error')
 
-data = json.load(canonical)
+DATA = json.load(CANONICAL)
 
 # create 'src' subdir
 try:
-    os.makedirs(exercise + "/src")
-except OSError as e:
-    if e.errno != errno.EEXIST:
+    os.makedirs(EXERCISE + "/src")
+except OSError as dir_error:
+    if dir_error.errno != errno.EEXIST:
         raise
 
 # header file
-f = open(exercise + '/src/' + exercise_ + '.h', 'w')
-print >> f, '#ifndef ' + exercise_.upper() + '_H'
-print >> f, '#define ' + exercise_.upper() + '_H'
-print >> f
-print >> f
-print >> f
-print >> f, '#endif'
+F = open(EXERCISE + '/src/' + EXERCISE_ + '.h', 'w')
+print >> F, '#ifndef ' + EXERCISE_.upper() + '_H'
+print >> F, '#define ' + EXERCISE_.upper() + '_H'
+print >> F
+print >> F
+print >> F
+print >> F, '#endif'
 
-# c exercise file
-f = open(exercise + '/src/' + exercise_ + '.c', 'w')
-print >> f, '#include "' + exercise_ + '.h"'
-print >> f
+# c EXERCISE file
+F = open(EXERCISE + '/src/' + EXERCISE_ + '.c', 'w')
+print >> F, '#include "' + EXERCISE_ + '.h"'
+print >> F
 
 # build the test file
-f = open(exercise + '/test/test_' + exercise_ + '.c', 'w')
+F = open(EXERCISE + '/test/test_' + EXERCISE_ + '.c', 'w')
 
-print >> f, '#include "vendor/unity.h"'
-print >> f, '#include "../src/' + exercise_ + '.h"'
-print >> f
-print >> f, 'void setUp(void)'
-print >> f, '{'
-print >> f, '}'
-print >> f
-print >> f, 'void tearDown(void)'
-print >> f, '{'
-print >> f, '}'
-print >> f
+print >> F, '#include "vendor/unity.h"'
+print >> F, '#include "../src/' + EXERCISE_ + '.h"'
+print >> F
+print >> F, 'void setUp(void)'
+print >> F, '{'
+print >> F, '}'
+print >> F
+print >> F, 'void tearDown(void)'
+print >> F, '{'
+print >> F, '}'
+print >> F
 
-exnum = 0
-if 'cases' in data['cases'][0]:
-    top = data['cases'][0]['cases']
+EXNUM = 0
+if 'cases' in DATA['cases'][0]:
+    for obj in DATA['cases']:
+        EXNUM += 1
+        print_functions(obj['cases'], EXNUM)
 else:
-    top = data['cases']
-for item in top:
-    exnum += 1
-    desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
-    print >> f, 'void test_' + desc.lower() + '(void)'
-    print >> f, '{'
-    if exnum == 2:
-        print >> f, ('        TEST_IGNORE();               '
-                     '// delete this line to run test')
-    elif exnum > 2:
-        print >> f, '        TEST_IGNORE();'
-    print >> f, '        /*'
-    print >> f, '----Input----'
-    print >> f, json.dumps(item['input'], indent=3)
-    print >> f, '---Expected---'
-    print >> f, json.dumps(item['expected'], indent=3)
-    print >> f, '        */'
-    print >> f
-    print >> f
-    print >> f, '}'
-    print >> f
+    print_functions(DATA['cases'], EXNUM)
 
-print >> f, 'int main(void)'
-print >> f, '{'
-print >> f, '        UnityBegin("test/test_' + exercise_ + '.c");'
-print >> f
+print >> F, 'int main(void)'
+print >> F, '{'
+print >> F, '        UnityBegin("test/test_' + EXERCISE_ + '.c");'
+print >> F
 
-for item in top:
-    desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
-    print >> f, '        RUN_TEST(test_' + desc.lower() + ');'
+if 'cases' in DATA['cases'][0]:
+    for obj in DATA['cases']:
+        for sub_obj in obj['cases']:
+            print_callers(sub_obj)
+else:
+    for sub_obj in DATA['cases']:
+        print_callers(sub_obj)
 
-print >> f
-print >> f, '        UnityEnd();'
-print >> f, '        return 0;'
-print >> f, '}'
+print >> F
+print >> F, '        UnityEnd();'
+print >> F, '        return 0;'
+print >> F, '}'
