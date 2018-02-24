@@ -27,8 +27,6 @@ def print_functions(top, exnum):
         print >> F, '---Expected---'
         print >> F, json.dumps(item['expected'], indent=3)
         print >> F, '        */'
-        print >> F
-        print >> F
         print >> F, '}'
         print >> F
     return exnum
