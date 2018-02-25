@@ -14,7 +14,8 @@ def print_functions(top, exnum):
     for item in top:
         exnum += 1
         desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
-        print >> F, 'void test_' + desc.lower() + '(void)'
+        print >> F, ('void test_' + item['property'] + '_' +
+                     desc.lower() + '(void)')
         print >> F, '{'
         if exnum == 2:
             print >> F, ('        TEST_IGNORE();               '
@@ -34,7 +35,8 @@ def print_functions(top, exnum):
 def print_callers(m_item):
     """ helper for the function callers """
     desc = re.sub('[^0-9a-zA-Z]+', '_', m_item['description'])
-    print >> F, '        RUN_TEST(test_' + desc.lower() + ');'
+    print >> F, ('        RUN_TEST(test_' + m_item['property'] + '_' +
+                 desc.lower() + ');')
     return
 
 # check input
