@@ -4,7 +4,7 @@ Python script generating a template for implementing C exercises for http://exer
 Here is the list with the unimplemented C exercises:
 http://exercism.io/languages/c/todo
 
-Call the script with the name of a exercise as parameter like this: (substitute spaces with hyphens)
+Call the script with the name (slug) of a exercise as parameter like this:
 ```
 ./generate_c_template.py prime-factors
 ```
