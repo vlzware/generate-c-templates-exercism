@@ -9,9 +9,16 @@ import re
 import urllib2
 from distutils.dir_util import copy_tree
 
-def print_functions(top, exnum):
+exnum = 0
+callers = ""
+def print_functions(top):
     """ helper for the function names """
+    global exnum
+    global callers
     for item in top:
+        if 'cases' in item:
+            print_functions(item['cases'])
+            continue
         exnum += 1
         desc = re.sub('[^0-9a-zA-Z]+', '_', item['description'])
         print >> F, ('void test_' + item['property'] + '_' +
@@ -30,13 +37,9 @@ def print_functions(top, exnum):
         print >> F, '        */'
         print >> F, '}'
         print >> F
-    return exnum
-
-def print_callers(m_item):
-    """ helper for the function callers """
-    desc = re.sub('[^0-9a-zA-Z]+', '_', m_item['description'])
-    print >> F, ('        RUN_TEST(test_' + m_item['property'] + '_' +
-                 desc.lower() + ');')
+        callers += ('        RUN_TEST(test_' + item['property'] + '_' +
+                desc.lower() + ');')
+        callers += '\n'
     return
 
 # check input
@@ -156,27 +159,15 @@ print >> F, '{'
 print >> F, '}'
 print >> F
 
-EXNUM = 0
-if 'cases' in DATA['cases'][0]:
-    for obj in DATA['cases']:
-        EXNUM = print_functions(obj['cases'], EXNUM)
-else:
-    print_functions(DATA['cases'], EXNUM)
+print_functions(DATA['cases'])
 
 print >> F, 'int main(void)'
 print >> F, '{'
 print >> F, '        UnityBegin("test/test_' + EXERCISE_ + '.c");'
 print >> F
 
-if 'cases' in DATA['cases'][0]:
-    for obj in DATA['cases']:
-        for sub_obj in obj['cases']:
-            print_callers(sub_obj)
-else:
-    for sub_obj in DATA['cases']:
-        print_callers(sub_obj)
+print >> F, callers
 
-print >> F
 print >> F, '        UnityEnd();'
 print >> F, '        return 0;'
 print >> F, '}'
